@@ -65,8 +65,8 @@ func albs(s *session.Session, region string, account string) []Record {
 			File:  "aws-albs",
 			Attrs: tmp,
 		})
-		output = append(output, albTargetGroups(s, aws.StringValue(a.LoadBalancerArn), region, account)...)
-		output = append(output, albListeners(s, aws.StringValue(a.LoadBalancerArn), region, account)...)
+		//output = append(output, albTargetGroups(s, aws.StringValue(a.LoadBalancerArn), region, account)...)
+		//output = append(output, albListeners(s, aws.StringValue(a.LoadBalancerArn), region, account)...)
 
 	}
 	return output

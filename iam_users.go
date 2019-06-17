@@ -38,6 +38,34 @@ func iamUsers(s *session.Session, _ string, account string) []Record {
 				},
 			},
 		)
+
+		output = append(output, iamGroupsForUser(s, u.Arn, u.UserName, account)...)
 	}
+	return output
+}
+
+func iamGroupsForUser(s *session.Session, userArn *string, username *string, account string) []Record {
+	fmt.Fprintf(os.Stderr, "Loading IAM groups for %s for account %s\n", aws.StringValue(username), account)
+
+	svc := iam.New(s)
+	input := &iam.ListGroupsForUserInput{
+		UserName: username,
+	}
+	result, err := svc.ListGroupsForUser(input)
+	if err != nil {
+		log.Fatalf("ListGroupsForUser %s error: %s", aws.StringValue(username), err)
+	}
+
+	var output []Record
+	for _, g := range result.Groups {
+		output = append(output, Record{
+			File: "aws-iam-user-groups",
+			Attrs: map[string]interface{}{
+				"aws_iam_user_arn":  aws.StringValue(userArn),
+				"aws_iam_group_arn": aws.StringValue(g.Arn),
+			},
+		})
+	}
+
 	return output
 }

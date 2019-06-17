@@ -91,7 +91,11 @@ func main() {
 					for _, accountID := range config.AccountIDs {
 						regions := filterRegions(allRegions, config.Regions)
 						for _, region := range regions {
-							session := awsSession(region, accountConfigs[accountID].Profile, fmt.Sprintf(accountConfigs[accountID].Role, accountID))
+							role := ""
+							if accountConfigs[accountID].Role != "" {
+								role = fmt.Sprintf(accountConfigs[accountID].Role, accountID)
+							}
+							session := awsSession(region, accountConfigs[accountID].Profile, role)
 							for _, resource := range config.Resources {
 								if err := sem.Acquire(ctx, 1); err != nil {
 									log.Printf("Failed to acquire semaphore: %v", err)
