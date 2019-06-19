@@ -11,37 +11,42 @@ import (
 )
 
 func init() {
-	addResource("ec2_security_groups", ec2SecurityGroups)
+	addResource("ec2-security-groups", ec2SecurityGroups)
 }
 
 func ec2SecurityGroups(s *session.Session, region string, account string) []Record {
-	fmt.Fprintf(os.Stderr, "Loading EC2 security groups for account %s in %s\n", account, region)
+	var output []Record
 
+	fmt.Fprintf(os.Stderr, "Loading EC2 security groups for account %s in %s\n", account, region)
 	svc := ec2.New(s)
 	input := &ec2.DescribeSecurityGroupsInput{}
-	result, err := svc.DescribeSecurityGroups(input)
+
+	err := svc.DescribeSecurityGroupsPages(input, func(result *ec2.DescribeSecurityGroupsOutput, _ bool) bool {
+		for _, sg := range result.SecurityGroups {
+			tmp := map[string]interface{}{
+				"aws_account_id":    account,
+				"aws_region":        region,
+				"description":       aws.StringValue(sg.Description),
+				"name":              aws.StringValue(sg.GroupName),
+				"security_group_id": aws.StringValue(sg.GroupId),
+			}
+			output = append(output, Record{File: "aws-ec2-security-groups", Attrs: tmp})
+			output = append(output, ec2SecurityGroupRules(sg.IpPermissions, aws.StringValue(sg.GroupId), "ingress")...)
+			output = append(output, ec2SecurityGroupRules(sg.IpPermissionsEgress, aws.StringValue(sg.GroupId), "egress")...)
+		}
+		return true
+	})
+
 	if err != nil {
 		log.Fatalf("DescribeSecurityGroups error: %s", err)
 	}
 
-	var output []Record
-	for _, sg := range result.SecurityGroups {
-		tmp := map[string]interface{}{
-			"aws_account_id":    account,
-			"aws_region":        region,
-			"description":       aws.StringValue(sg.Description),
-			"name":              aws.StringValue(sg.GroupName),
-			"security_group_id": aws.StringValue(sg.GroupId),
-		}
-		output = append(output, Record{File: "aws-ec2-security-groups", Attrs: tmp})
-		output = append(output, ec2SecurityGroupRules(sg.IpPermissions, aws.StringValue(sg.GroupId), "ingress")...)
-		output = append(output, ec2SecurityGroupRules(sg.IpPermissionsEgress, aws.StringValue(sg.GroupId), "egress")...)
-	}
 	return output
 }
 
 func ec2SecurityGroupRules(rules []*ec2.IpPermission, securityGroupID string, direction string) []Record {
 	var output []Record
+
 	for _, r := range rules {
 		for _, x := range r.IpRanges {
 			output = append(output,
@@ -78,5 +83,6 @@ func ec2SecurityGroupRules(rules []*ec2.IpPermission, securityGroupID string, di
 			)
 		}
 	}
+
 	return output
 }

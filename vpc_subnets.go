@@ -11,36 +11,40 @@ import (
 )
 
 func init() {
-	addResource("vpc_subnets", vpcSubnets)
+	addResource("vpc-subnets", vpcSubnets)
 }
 
 func vpcSubnets(s *session.Session, region string, account string) []Record {
-	fmt.Fprintf(os.Stderr, "Loading VPC subnets for account %s in %s\n", account, region)
+	var output []Record
 
+	fmt.Fprintf(os.Stderr, "Loading VPC subnets for account %s in %s\n", account, region)
 	svc := ec2.New(s)
 	input := &ec2.DescribeSubnetsInput{}
-	result, err := svc.DescribeSubnets(input)
+
+	err := svc.DescribeSubnetsPages(input, func(result *ec2.DescribeSubnetsOutput, _ bool) bool {
+		for _, s := range result.Subnets {
+			tmp := map[string]interface{}{
+				"available_ips":         aws.Int64Value(s.AvailableIpAddressCount),
+				"aws_account_id":        account,
+				"aws_region":            region,
+				"aws_availability_zone": aws.StringValue(s.AvailabilityZone),
+				"cidr_block":            aws.StringValue(s.CidrBlock),
+				"name":                  getTagOrDefault(s.Tags, "Name", aws.StringValue(s.SubnetId)),
+				"subnet_id":             aws.StringValue(s.SubnetId),
+				"tier":                  getTagOrDefault(s.Tags, "Tier", "unknown"),
+				"vpc_id":                aws.StringValue(s.VpcId),
+			}
+			output = append(output, Record{
+				File:  "aws-vpc-subnets",
+				Attrs: tmp,
+			})
+		}
+		return true
+	})
+
 	if err != nil {
 		log.Fatalf("DescribeSubnets error: %s", err)
 	}
 
-	var output []Record
-	for _, s := range result.Subnets {
-		tmp := map[string]interface{}{
-			"available_ips":         aws.Int64Value(s.AvailableIpAddressCount),
-			"aws_account_id":        account,
-			"aws_region":            region,
-			"aws_availability_zone": aws.StringValue(s.AvailabilityZone),
-			"cidr_block":            aws.StringValue(s.CidrBlock),
-			"name":                  getTagOrDefault(s.Tags, "Name", aws.StringValue(s.SubnetId)),
-			"subnet_id":             aws.StringValue(s.SubnetId),
-			"tier":                  getTagOrDefault(s.Tags, "Tier", "unknown"),
-			"vpc_id":                aws.StringValue(s.VpcId),
-		}
-		output = append(output, Record{
-			File:  "aws-vpc-subnets",
-			Attrs: tmp,
-		})
-	}
 	return output
 }

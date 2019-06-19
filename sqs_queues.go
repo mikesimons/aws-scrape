@@ -13,15 +13,15 @@ import (
 )
 
 func init() {
-	addResource("sqs_queues", sqsQueues)
+	addResource("sqs-queues", sqsQueues)
 }
 
 func sqsQueues(s *session.Session, region string, account string) []Record {
 	fmt.Fprintf(os.Stderr, "Loading SQS queues for account %s in %s\n", account, region)
-
 	svc := sqs.New(s)
 	input := &sqs.ListQueuesInput{}
 	result, err := svc.ListQueues(input)
+
 	if err != nil {
 		log.Fatalf("ListQueues error: %s", err)
 	}

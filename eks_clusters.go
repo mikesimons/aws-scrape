@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addResource("eks_clusters", eksClusters)
+	addResource("eks-clusters", eksClusters)
 }
 
 func eksClusters(s *session.Session, region string, account string) []Record {
@@ -19,6 +19,7 @@ func eksClusters(s *session.Session, region string, account string) []Record {
 	svc := eks.New(s)
 	input := &eks.ListClustersInput{}
 	result, err := svc.ListClusters(input)
+
 	if err != nil {
 		log.Fatalf("ListClusters error: %s", err)
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addResource("s3_buckets", s3Buckets)
+	addResource("s3-buckets", s3Buckets)
 }
 
 func s3Buckets(s *session.Session, _ string, account string) []Record {
@@ -19,6 +19,7 @@ func s3Buckets(s *session.Session, _ string, account string) []Record {
 	svc := s3.New(s)
 	input := &s3.ListBucketsInput{}
 	result, err := svc.ListBuckets(input)
+
 	if err != nil {
 		log.Fatalf("ListBuckets error: %s", err)
 	}

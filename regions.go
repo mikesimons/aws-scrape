@@ -19,6 +19,7 @@ func regions(s *session.Session, _ string, account string) []Record {
 	svc := ec2.New(s)
 	input := &ec2.DescribeRegionsInput{}
 	result, err := svc.DescribeRegions(input)
+
 	if err != nil {
 		log.Fatalf("DescribeRegions error: %s", err)
 	}
