@@ -26,12 +26,23 @@ func s3Buckets(s *session.Session, _ string, account string) []Record {
 
 	var output []Record
 	for _, b := range result.Buckets {
+		location, err := svc.GetBucketLocation(&s3.GetBucketLocationInput{Bucket: b.Name})
+		if err != nil {
+			log.Fatalf("GetBucketLocation error: %s", err)
+		}
+
+		regionPart := ""
+		if location.LocationConstraint != nil {
+			regionPart = fmt.Sprintf("%s.", aws.StringValue(location.LocationConstraint))
+		}
+
 		output = append(output,
 			Record{
 				File: "aws-s3-buckets",
 				Attrs: map[string]interface{}{
 					"aws_account_id": account,
 					"created_at":     aws.TimeValue(b.CreationDate).UTC().Unix(),
+					"domain":         fmt.Sprintf("%s.s3.%samazonaws.com", aws.StringValue(b.Name), regionPart),
 					"name":           aws.StringValue(b.Name),
 				},
 			},

@@ -65,7 +65,7 @@ func route53RecordSets(s *session.Session, hostedZoneID string, account string) 
 				tmp := map[string]interface{}{
 					"aws_account_id":             account,
 					"aws_route53_hosted_zone_id": hostedZoneID,
-					"name":                       aws.StringValue(v.Name),
+					"name":                       strings.Trim(aws.StringValue(v.Name), "."),
 					"type":                       aws.StringValue(v.Type),
 					"record":                     aws.StringValue(rr.Value),
 				}

@@ -32,6 +32,7 @@ func albs(s *session.Session, region string, account string) []Record {
 				"aws_vpc_id":     aws.StringValue(a.VpcId),
 				"name":           aws.StringValue(a.LoadBalancerName),
 				"scheme":         aws.StringValue(a.Scheme),
+				"dns_name":       aws.StringValue(a.DNSName),
 			}
 
 			for _, sg := range a.SecurityGroups {
