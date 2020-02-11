@@ -24,6 +24,7 @@ func vpcs(s *session.Session, region string, account string) []Record {
 	err := svc.DescribeVpcsPages(input, func(result *ec2.DescribeVpcsOutput, _ bool) bool {
 		for _, v := range result.Vpcs {
 			tmp := map[string]interface{}{
+				"arn":            fmt.Sprintf("arn:aws:ec2:%s:%s:vpc/%s", region, account, aws.StringValue(v.VpcId)),
 				"aws_account_id": account,
 				"aws_region":     region,
 				"cidr_block":     aws.StringValue(v.CidrBlock),

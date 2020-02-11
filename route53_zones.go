@@ -25,9 +25,11 @@ func route53Zones(s *session.Session, _ string, account string) []Record {
 	input := &route53.ListHostedZonesInput{}
 	err := svc.ListHostedZonesPages(input, func(result *route53.ListHostedZonesOutput, _ bool) bool {
 		for _, v := range result.HostedZones {
+			id := strings.ReplaceAll(aws.StringValue(v.Id), "/hostedzone/", "")
 			tmp := map[string]interface{}{
+				"arn":            fmt.Sprintf("arn:aws:route53:::hostedzone/%s", id),
 				"aws_account_id": account,
-				"id":             strings.ReplaceAll(aws.StringValue(v.Id), "/hostedzone/", ""),
+				"id":             id,
 				"name":           aws.StringValue(v.Name),
 				"private":        aws.BoolValue(v.Config.PrivateZone),
 			}

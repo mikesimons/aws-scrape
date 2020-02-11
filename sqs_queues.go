@@ -29,10 +29,12 @@ func sqsQueues(s *session.Session, region string, account string) []Record {
 	var output []Record
 	for _, u := range result.QueueUrls {
 		parsedQueueURL, _ := url.Parse(aws.StringValue(u))
+		name := strings.Split(parsedQueueURL.Path, "/")[2]
 		tmp := map[string]interface{}{
+			"arn":            fmt.Sprintf("arn:aws:sqs:%s:%s:%s", region, account, name),
 			"aws_account_id": account,
 			"aws_region":     region,
-			"name":           strings.Split(parsedQueueURL.Path, "/")[2],
+			"name":           name,
 			"url":            aws.StringValue(u),
 		}
 		output = append(output, Record{

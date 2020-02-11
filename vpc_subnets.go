@@ -24,15 +24,16 @@ func vpcSubnets(s *session.Session, region string, account string) []Record {
 	err := svc.DescribeSubnetsPages(input, func(result *ec2.DescribeSubnetsOutput, _ bool) bool {
 		for _, s := range result.Subnets {
 			tmp := map[string]interface{}{
+				"arn":                   aws.StringValue(s.SubnetArn),
 				"available_ips":         aws.Int64Value(s.AvailableIpAddressCount),
 				"aws_account_id":        account,
-				"aws_region":            region,
 				"aws_availability_zone": aws.StringValue(s.AvailabilityZone),
+				"aws_region":            region,
+				"aws_vpc_id":            aws.StringValue(s.VpcId),
 				"cidr_block":            aws.StringValue(s.CidrBlock),
 				"name":                  getTagOrDefault(s.Tags, "Name", aws.StringValue(s.SubnetId)),
 				"subnet_id":             aws.StringValue(s.SubnetId),
 				"tier":                  getTagOrDefault(s.Tags, "Tier", "unknown"),
-				"vpc_id":                aws.StringValue(s.VpcId),
 			}
 			output = append(output, Record{
 				File:  "aws-vpc-subnets",

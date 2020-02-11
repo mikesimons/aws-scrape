@@ -26,15 +26,13 @@ func tags(s *session.Session, region string, account string) []Record {
 		for _, list := range result.ResourceTagMappingList {
 			for _, tag := range list.Tags {
 				tmp := map[string]interface{}{
-					"aws_account_id": account,
-					"aws_region":     region,
-					"name":           aws.StringValue(tag.Key),
-					"value":          aws.StringValue(tag.Value),
-					"resource_arn":   aws.StringValue(list.ResourceARN),
+					"name":         aws.StringValue(tag.Key),
+					"value":        aws.StringValue(tag.Value),
+					"resource_arn": aws.StringValue(list.ResourceARN),
 				}
 
 				output = append(output, Record{
-					File:  "aws-tag",
+					File:  "aws-tags",
 					Attrs: tmp,
 				})
 			}

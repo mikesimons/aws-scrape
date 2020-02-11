@@ -27,6 +27,7 @@ func ec2Volumes(s *session.Session, region string, account string) []Record {
 				Record{
 					File: "aws-ec2-volumes",
 					Attrs: map[string]interface{}{
+						"arn":                   fmt.Sprintf("arn:aws:ec2:%s:%s:volume/%s", region, account, aws.StringValue(v.VolumeId)),
 						"aws_account_id":        account,
 						"aws_availability_zone": aws.StringValue(v.AvailabilityZone),
 						"aws_ec2_snapshot_id":   aws.StringValue(v.SnapshotId),

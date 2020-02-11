@@ -24,6 +24,7 @@ func vpcPeeringConnections(s *session.Session, region string, account string) []
 	err := svc.DescribeVpcPeeringConnectionsPages(input, func(result *ec2.DescribeVpcPeeringConnectionsOutput, _ bool) bool {
 		for _, v := range result.VpcPeeringConnections {
 			tmp := map[string]interface{}{
+				"arn":              fmt.Sprintf("arn:aws:ec2:%s:%s:vpc-peering-connection/%s", region, account, aws.StringValue(v.VpcPeeringConnectionId)),
 				"requester_vpc_id": aws.StringValue(v.RequesterVpcInfo.VpcId),
 				"accepter_vpc_id":  aws.StringValue(v.AccepterVpcInfo.VpcId),
 			}
