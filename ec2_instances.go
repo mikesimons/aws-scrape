@@ -25,6 +25,7 @@ func ec2Instances(s *session.Session, region string, account string) []Record {
 		for _, reservation := range result.Reservations {
 			for _, instance := range reservation.Instances {
 				tmp := map[string]interface{}{
+					"arn":                fmt.Sprintf("arn:aws:ec2:%s:%s:instance/%s", region, account, aws.StringValue(instance.InstanceId)),
 					"aws_account_id":     account,
 					"aws_region":         region,
 					"aws_vpc_id":         aws.StringValue(instance.VpcId),

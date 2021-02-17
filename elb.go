@@ -26,9 +26,9 @@ func elbs(s *session.Session, region string, account string) []Record {
 		for _, v := range result.LoadBalancerDescriptions {
 			arn := fmt.Sprintf("arn:aws:elasticloadbalancing:%s:%s:loadbalancer/%s", region, account, aws.StringValue(v.LoadBalancerName))
 			tmp := map[string]interface{}{
+				"arn":            arn,
 				"aws_account_id": account,
 				"aws_region":     region,
-				"arn":            arn,
 				"name":           aws.StringValue(v.LoadBalancerName),
 				"dns_name":       aws.StringValue(v.DNSName),
 				"scheme":         aws.StringValue(v.Scheme),

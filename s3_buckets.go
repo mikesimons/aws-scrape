@@ -40,6 +40,7 @@ func s3Buckets(s *session.Session, _ string, account string) []Record {
 			Record{
 				File: "aws-s3-buckets",
 				Attrs: map[string]interface{}{
+					"arn":            fmt.Sprintf("arn:aws:s3:::%s", aws.StringValue(b.Name)),
 					"aws_account_id": account,
 					"created_at":     aws.TimeValue(b.CreationDate).UTC().Unix(),
 					"domain":         fmt.Sprintf("%s.s3.%samazonaws.com", aws.StringValue(b.Name), regionPart),

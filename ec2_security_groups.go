@@ -24,6 +24,7 @@ func ec2SecurityGroups(s *session.Session, region string, account string) []Reco
 	err := svc.DescribeSecurityGroupsPages(input, func(result *ec2.DescribeSecurityGroupsOutput, _ bool) bool {
 		for _, sg := range result.SecurityGroups {
 			tmp := map[string]interface{}{
+				"arn":               fmt.Sprintf("arn:aws:ec2:%s:%s:security-group/%s", region, account, aws.StringValue(sg.GroupId)),
 				"aws_account_id":    account,
 				"aws_region":        region,
 				"description":       aws.StringValue(sg.Description),
